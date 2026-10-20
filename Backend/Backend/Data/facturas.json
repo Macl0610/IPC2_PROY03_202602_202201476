@@ -1,1 +1,29 @@
-[]
+[
+  {
+    "Fecha": "2025-01-16T10:00:00",
+    "Referencia": "B2001",
+    "NitEmisor": "7378106",
+    "NitReceptor": "8338817",
+    "Valor": 50.00,
+    "Iva": 6.00,
+    "Total": 56.00,
+    "CodigoAprobacion": 2026101900000001,
+    "Errores": [],
+    "Aprobada": true
+  },
+  {
+    "Fecha": "2025-01-16T11:00:00",
+    "Referencia": "B2002",
+    "NitEmisor": "7378106",
+    "NitReceptor": "8338817",
+    "Valor": 100.00,
+    "Iva": 10.00,
+    "Total": 110.00,
+    "CodigoAprobacion": null,
+    "Errores": [
+      "IVA_MAL_CALCULADO",
+      "TOTAL_MAL_CALCULADO"
+    ],
+    "Aprobada": false
+  }
+]

@@ -1,0 +1,78 @@
+﻿@page
+@model Frontend.Pages.ConsultarContribuyenteModel
+@{
+    ViewData["Title"] = "Consultar contribuyente";
+    var tipos = new SelectList(new[]
+    {
+        new { Valor = "emitidas", Texto = "Facturas emitidas" },
+        new { Valor = "recibidas", Texto = "Facturas recibidas" }
+    }, "Valor", "Texto");
+}
+
+<h2>Consultar contribuyente</h2>
+
+@using (Html.BeginForm(FormMethod.Post, true, null))
+{
+    <div class="row g-3 mb-3">
+        <div class="col-md-3">
+            <label class="form-label">NIT</label>
+            @Html.TextBoxFor(m => m.Nit, new { @class = "form-control" })
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Tipo</label>
+            @Html.DropDownListFor(m => m.Tipo, tipos, new { @class = "form-select" })
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Desde</label>
+            @Html.TextBoxFor(m => m.Desde, "{0:yyyy-MM-dd}", new { type = "date", @class = "form-control" })
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Hasta</label>
+            @Html.TextBoxFor(m => m.Hasta, "{0:yyyy-MM-dd}", new { type = "date", @class = "form-control" })
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Consultar</button>
+}
+
+@if (Model.Error != null)
+{
+    <div class="alert alert-danger mt-3">@Model.Error</div>
+}
+
+@if (Model.Resultado != null)
+{
+    <h4 class="mt-4">Resumen por fecha (@Model.Resultado.Tipo)</h4>
+    @if (Model.Resultado.Dias.Count == 0)
+    {
+        <p>No hay facturas autorizadas en ese rango.</p>
+    }
+    else
+    {
+        <table class="table table-bordered">
+            <thead><tr><th>Fecha</th><th>Cantidad de facturas</th><th>Monto total</th></tr></thead>
+            <tbody>
+                @foreach (var d in Model.Resultado.Dias)
+                {
+                    <tr><td>@d.Fecha</td><td>@d.CantidadFacturas</td><td>@d.MontoTotal.ToString("0.00")</td></tr>
+                }
+                <tr class="fw-bold"><td>Total del rango</td><td></td><td>@Model.Resultado.TotalRango.ToString("0.00")</td></tr>
+            </tbody>
+        </table>
+
+        <h4 class="mt-4">Listado de facturas</h4>
+        <table class="table table-sm table-striped">
+            <thead><tr><th>Fecha</th><th>Referencia</th><th>NIT emisor</th><th>NIT receptor</th><th>Valor</th><th>IVA</th><th>Total</th><th>Código</th></tr></thead>
+            <tbody>
+                @foreach (var f in Model.Resultado.Facturas)
+                {
+                    <tr>
+                        <td>@f.Fecha.ToString("dd/MM/yyyy")</td><td>@f.Referencia</td>
+                        <td>@f.NitEmisor</td><td>@f.NitReceptor</td>
+                        <td>@f.Valor.ToString("0.00")</td><td>@f.Iva.ToString("0.00")</td>
+                        <td>@f.Total.ToString("0.00")</td><td>@f.CodigoAprobacion</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}

@@ -1,0 +1,35 @@
+﻿@page
+@model Frontend.Pages.EnviarMensajeModel
+@{
+    ViewData["Title"] = "Enviar mensaje";
+    var tipos = new SelectList(new[]
+    {
+        new { Valor = "rtu", Texto = "Actualizar RTU (contribuyentes)" },
+        new { Valor = "facturas", Texto = "Solicitar autorización de facturas" }
+    }, "Valor", "Texto");
+}
+
+<h2>Enviar mensaje</h2>
+
+@using (Html.BeginForm(FormMethod.Post, true, new { enctype = "multipart/form-data" }))
+{
+    <div class="mb-3">
+        <label class="form-label">Tipo de mensaje</label>
+        @Html.DropDownListFor(m => m.Tipo, tipos, new { @class = "form-select" })
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Archivo .json</label>
+        @Html.TextBoxFor(m => m.Archivo, new { type = "file", accept = ".json", @class = "form-control" })
+    </div>
+    <button type="submit" class="btn btn-primary">Enviar</button>
+}
+
+@if (Model.Error != null)
+{
+    <div class="alert alert-danger mt-3">@Model.Error</div>
+}
+@if (Model.Respuesta != null)
+{
+    <h4 class="mt-3">Respuesta del Backend</h4>
+    <pre class="bg-light p-3">@Model.Respuesta</pre>
+}

@@ -1,0 +1,58 @@
+﻿@page
+@model Frontend.Pages.ResumenRangoModel
+@{
+    ViewData["Title"] = "Resumen por rango";
+    var tipos = new SelectList(new[]
+    {
+        new { Valor = "total", Texto = "Valores totales (con IVA)" },
+        new { Valor = "sinIva", Texto = "Valores sin IVA" }
+    }, "Valor", "Texto");
+}
+
+<h2>Resumen por rango de fechas</h2>
+
+@using (Html.BeginForm(FormMethod.Post, true, null))
+{
+    <div class="row g-3 mb-3">
+        <div class="col-md-4">
+            <label class="form-label">Tipo</label>
+            @Html.DropDownListFor(m => m.Tipo, tipos, new { @class = "form-select" })
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Desde</label>
+            @Html.TextBoxFor(m => m.Desde, "{0:yyyy-MM-dd}", new { type = "date", @class = "form-control" })
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Hasta</label>
+            @Html.TextBoxFor(m => m.Hasta, "{0:yyyy-MM-dd}", new { type = "date", @class = "form-control" })
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Consultar</button>
+}
+
+@if (Model.Error != null)
+{
+    <div class="alert alert-danger mt-3">@Model.Error</div>
+}
+
+@if (Model.Resultado != null)
+{
+    <h4 class="mt-4">Valor autorizado por fecha</h4>
+    @if (Model.Resultado.Dias.Count == 0)
+    {
+        <p>No hay facturas autorizadas en ese rango.</p>
+    }
+    else
+    {
+        <table class="table table-bordered">
+            <thead><tr><th>Fecha</th><th>Valor</th></tr></thead>
+            <tbody>
+                @foreach (var d in Model.Resultado.Dias)
+                {
+                    <tr><td>@d.Fecha</td><td>@d.Valor.ToString("0.00")</td></tr>
+                }
+                <tr class="fw-bold"><td>Total del rango</td><td>@Model.Resultado.TotalRango.ToString("0.00")</td></tr>
+            </tbody>
+        </table>
+    }
+}
