@@ -1,0 +1,44 @@
+﻿@page
+@model Frontend.Pages.ResumenIvaModel
+@{
+    ViewData["Title"] = "Resumen IVA";
+}
+
+<h2>Resumen de IVA por fecha</h2>
+
+@using (Html.BeginForm(FormMethod.Post, true, null))
+{
+    <div class="row g-3 mb-3">
+        <div class="col-md-4">
+            <label class="form-label">Fecha</label>
+            @Html.TextBoxFor(m => m.Fecha, "{0:yyyy-MM-dd}", new { type = "date", @class = "form-control" })
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Consultar</button>
+}
+
+@if (Model.Error != null)
+{
+    <div class="alert alert-danger mt-3">@Model.Error</div>
+}
+
+@if (Model.Resultado != null)
+{
+    <h4 class="mt-4">IVA del @Model.Resultado.Fecha</h4>
+    @if (Model.Resultado.Nits.Count == 0)
+    {
+        <p>No hay facturas autorizadas en esa fecha.</p>
+    }
+    else
+    {
+        <table class="table table-bordered">
+            <thead><tr><th>NIT</th><th>IVA emitido</th><th>IVA recibido</th></tr></thead>
+            <tbody>
+                @foreach (var n in Model.Resultado.Nits)
+                {
+                    <tr><td>@n.Nit</td><td>@n.IvaEmitido.ToString("0.00")</td><td>@n.IvaRecibido.ToString("0.00")</td></tr>
+                }
+            </tbody>
+        </table>
+    }
+}

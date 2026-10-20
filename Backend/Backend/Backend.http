@@ -43,3 +43,19 @@ POST {{Backend_HostAddress}}/api/sistema/inicializar
 ###
 
 GET {{Backend_HostAddress}}/api/facturas
+
+   ###
+
+GET {{Backend_HostAddress}}/api/reportes/fechas?desde=2025-01-01&hasta=2025-01-31
+###
+
+GET {{Backend_HostAddress}}/api/reportes/contribuyente?nit=7378106&tipo=emitidas&desde=2025-01-01&hasta=2025-01-31
+
+  ###
+
+GET {{Backend_HostAddress}}/api/reportes/iva?fecha=2025-01-15
+
+
+   ###
+
+GET {{Backend_HostAddress}}/api/reportes/rango?desde=2025-01-01&hasta=2025-01-31&tipo=sinIva

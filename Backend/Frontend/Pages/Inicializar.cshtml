@@ -1,0 +1,22 @@
+﻿@page
+@model Frontend.Pages.InicializarModel
+@{
+    ViewData["Title"] = "Inicializar";
+}
+
+<h2>Inicializar sistema</h2>
+<p>Esto borra <strong>todos</strong> los contribuyentes del RTU y todas las facturas.</p>
+
+@using (Html.BeginForm(FormMethod.Post, true, null))
+{
+    <button type="submit" class="btn btn-danger">Inicializar</button>
+}
+
+@if (Model.Mensaje != null)
+{
+    <div class="alert alert-success mt-3">@Model.Mensaje</div>
+}
+@if (Model.Error != null)
+{
+    <div class="alert alert-danger mt-3">@Model.Error</div>
+}
