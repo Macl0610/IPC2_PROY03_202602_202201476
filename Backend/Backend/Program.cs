@@ -9,6 +9,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddSingleton<RtuService>();
 builder.Services.AddSingleton<FacturaService>();
+builder.Services.AddSingleton<ReporteService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
