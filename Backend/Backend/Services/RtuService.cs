@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Backend.Estructuras;
 using Backend.Models;
 using Backend.Utils;
 
@@ -8,7 +9,9 @@ public class RtuService
 {
     private readonly string _carpeta = "Data";
     private readonly string _ruta = Path.Combine("Data", "rtu.json");
-    private readonly Dictionary<string, Contribuyente> _contribuyentes;
+
+    // TDA propio: tabla hash donde la llave es el NIT
+    private readonly TablaHash<Contribuyente> _contribuyentes;
     private readonly object _lock = new();
 
     public RtuService()
@@ -16,7 +19,7 @@ public class RtuService
         _contribuyentes = Cargar();
     }
 
-    public RespuestaRtu Actualizar(List<Contribuyente> lista)
+    public RespuestaRtu Actualizar(ListaEnlazada<Contribuyente> lista)
     {
         var respuesta = new RespuestaRtu();
 
@@ -33,16 +36,17 @@ public class RtuService
                     continue;
                 }
 
-                if (_contribuyentes.ContainsKey(nit))
-                    respuesta.ContribuyentesActualizados++;
-                else
-                    respuesta.ContribuyentesNuevos++;
-
-                _contribuyentes[nit] = new Contribuyente
+                var contribuyente = new Contribuyente
                 {
                     Nit = nit,
                     Nombre = (c.Nombre ?? "").Trim()
                 };
+
+                // Guardar devuelve true si el NIT era nuevo
+                if (_contribuyentes.Guardar(nit, contribuyente))
+                    respuesta.ContribuyentesNuevos++;
+                else
+                    respuesta.ContribuyentesActualizados++;
             }
 
             Guardar();
@@ -55,15 +59,15 @@ public class RtuService
     {
         lock (_lock)
         {
-            return _contribuyentes.ContainsKey(nit.Trim().ToUpper());
+            return _contribuyentes.Contiene(nit.Trim().ToUpper());
         }
     }
 
-    public List<Contribuyente> ObtenerTodos()
+    public ListaEnlazada<Contribuyente> ObtenerTodos()
     {
         lock (_lock)
         {
-            return _contribuyentes.Values.ToList();
+            return _contribuyentes.Valores();
         }
     }
 
@@ -71,24 +75,29 @@ public class RtuService
     {
         lock (_lock)
         {
-            _contribuyentes.Clear();
+            _contribuyentes.Limpiar();
             Guardar();
         }
     }
 
-    private Dictionary<string, Contribuyente> Cargar()
+    private TablaHash<Contribuyente> Cargar()
     {
-        if (!File.Exists(_ruta)) return new Dictionary<string, Contribuyente>();
+        var tabla = new TablaHash<Contribuyente>();
+        if (!File.Exists(_ruta)) return tabla;
 
         string json = File.ReadAllText(_ruta);
-        var lista = JsonSerializer.Deserialize<List<Contribuyente>>(json) ?? new List<Contribuyente>();
-        return lista.ToDictionary(c => c.Nit);
+        var lista = JsonSerializer.Deserialize<ListaEnlazada<Contribuyente>>(json) ?? new ListaEnlazada<Contribuyente>();
+        foreach (var c in lista)
+        {
+            tabla.Guardar(c.Nit, c);
+        }
+        return tabla;
     }
 
     private void Guardar()
     {
         Directory.CreateDirectory(_carpeta);
         var opciones = new JsonSerializerOptions { WriteIndented = true };
-        File.WriteAllText(_ruta, JsonSerializer.Serialize(_contribuyentes.Values, opciones));
+        File.WriteAllText(_ruta, JsonSerializer.Serialize(_contribuyentes.Valores(), opciones));
     }
 }

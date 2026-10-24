@@ -1,0 +1,56 @@
+﻿@page
+@model ReporteFechasModel
+@{
+    ViewData["Title"] = "Reporte por fechas";
+}
+
+<h2>Reporte de facturas por fecha</h2>
+
+@using (Html.BeginForm(FormMethod.Post, true, new { }))
+{
+    <div class="row g-2 align-items-end mb-3">
+        <div class="col-auto">
+            <label class="form-label">Desde</label>
+            @Html.TextBoxFor(m => m.Desde, "{0:yyyy-MM-dd}", new { type = "date", @class = "form-control" })
+        </div>
+        <div class="col-auto">
+            <label class="form-label">Hasta</label>
+            @Html.TextBoxFor(m => m.Hasta, "{0:yyyy-MM-dd}", new { type = "date", @class = "form-control" })
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Consultar</button>
+            <button type="submit" class="btn btn-secondary" formaction="?handler=Pdf">Descargar PDF</button>
+        </div>
+    </div>
+}
+
+@if (Model.Error != null)
+{
+    <div class="alert alert-danger">@Model.Error</div>
+}
+
+@if (Model.Resultado != null)
+{
+    if (Model.Resultado.Count == 0)
+    {
+        <div class="alert alert-info">No se recibieron facturas en ese rango.</div>
+    }
+
+    foreach (var r in Model.Resultado)
+    {
+        <h4 class="mt-4">Fecha: @r.Fecha</h4>
+        <table class="table table-sm table-bordered" style="max-width: 500px">
+            <tr><th>Total de facturas recibidas</th><td>@r.TotalFacturas</td></tr>
+            <tr><td>NIT emisor inválido</td><td>@r.NitEmisorInvalido</td></tr>
+            <tr><td>NIT receptor inválido</td><td>@r.NitReceptorInvalido</td></tr>
+            <tr><td>NIT emisor inexistente</td><td>@r.NitEmisorInexistente</td></tr>
+            <tr><td>NIT receptor inexistente</td><td>@r.NitReceptorInexistente</td></tr>
+            <tr><td>IVA mal calculado</td><td>@r.IvaMalCalculado</td></tr>
+            <tr><td>TOTAL mal calculado</td><td>@r.TotalMalCalculado</td></tr>
+            <tr><td>REFERENCIA duplicada</td><td>@r.ReferenciaDuplicada</td></tr>
+            <tr><th>Facturas sin errores</th><td>@r.FacturasSinErrores</td></tr>
+            <tr><th>Cantidad de emisores</th><td>@r.CantidadEmisores</td></tr>
+            <tr><th>Cantidad de receptores</th><td>@r.CantidadReceptores</td></tr>
+        </table>
+    }
+}

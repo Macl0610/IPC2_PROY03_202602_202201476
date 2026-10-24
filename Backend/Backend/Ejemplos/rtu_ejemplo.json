@@ -1,0 +1,42 @@
+[
+  {
+    "NIT": "7378106",
+    "nombre": "Empresa ABC"
+  },
+  {
+    "NIT": "1234560",
+    "nombre": "Distribuidora El Sol"
+  },
+  {
+    "NIT": "2468131",
+    "nombre": "Panadería Doña Rosa"
+  },
+  {
+    "NIT": "4567897",
+    "nombre": "Ferretería La Llave"
+  },
+  {
+    "NIT": "100008K",
+    "nombre": "Tienda La Esquina"
+  },
+  {
+    "NIT": "9876545",
+    "nombre": "Comercial Los Altos"
+  },
+  {
+    "NIT": "7378106",
+    "nombre": "Empresa ABC Guatemala, S.A."
+  },
+  {
+    "NIT": "1234567",
+    "nombre": "NIT con verificador malo"
+  },
+  {
+    "NIT": "ABC1234",
+    "nombre": "NIT con letras"
+  },
+  {
+    "NIT": "",
+    "nombre": "NIT vacío"
+  }
+]

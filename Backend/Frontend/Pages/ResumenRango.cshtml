@@ -1,5 +1,6 @@
 ﻿@page
 @model Frontend.Pages.ResumenRangoModel
+@using System.Globalization
 @{
     ViewData["Title"] = "Resumen por rango";
     var tipos = new SelectList(new[]
@@ -28,6 +29,7 @@
         </div>
     </div>
     <button type="submit" class="btn btn-primary">Consultar</button>
+    <button type="submit" class="btn btn-outline-danger" formaction="?handler=Pdf">Descargar PDF</button>
 }
 
 @if (Model.Error != null)
@@ -37,7 +39,7 @@
 
 @if (Model.Resultado != null)
 {
-    <h4 class="mt-4">Valor autorizado por fecha</h4>
+    <h4 class="mt-4">Valor autorizado por fecha (@(Model.Resultado.Tipo == "sinIva" ? "sin IVA" : "con IVA"))</h4>
     @if (Model.Resultado.Dias.Count == 0)
     {
         <p>No hay facturas autorizadas en ese rango.</p>
@@ -54,5 +56,20 @@
                 <tr class="fw-bold"><td>Total del rango</td><td>@Model.Resultado.TotalRango.ToString("0.00")</td></tr>
             </tbody>
         </table>
+
+        <h4 class="mt-4">Gráfica</h4>
+        @foreach (var d in Model.Resultado.Dias)
+        {
+            string ancho = Model.Porcentaje(d.Valor).ToString("0.##", CultureInfo.InvariantCulture);
+
+            <div class="row align-items-center mb-2">
+                <div class="col-2"><strong>@d.Fecha</strong></div>
+                <div class="col-10">
+                    <div class="progress" style="height: 24px;">
+                        <div class="progress-bar bg-info text-dark" style="width: @ancho%;">@d.Valor.ToString("0.00")</div>
+                    </div>
+                </div>
+            </div>
+        }
     }
 }

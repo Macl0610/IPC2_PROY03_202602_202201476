@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Frontend.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -23,7 +24,48 @@ public class ConsultarContribuyenteModel : PageModel
 
     public void OnGet() { }
 
+    // Botón "Consultar"
     public async Task OnPostAsync()
+    {
+        await Consultar();
+    }
+
+    // Botón "Descargar PDF"
+    public async Task<IActionResult> OnPostPdfAsync()
+    {
+        await Consultar();
+        if (Resultado == null) return Page();
+
+        var pdf = new GeneradorPdf();
+        pdf.Titulo("Consulta de contribuyente");
+        pdf.Linea($"NIT: {Resultado.Nit}");
+        pdf.Linea($"Facturas {Resultado.Tipo}, del {Desde:dd/MM/yyyy} al {Hasta:dd/MM/yyyy}");
+        pdf.Linea("");
+
+        if (Resultado.Dias.Count == 0)
+        {
+            pdf.Linea("No hay facturas autorizadas en ese rango.");
+        }
+        else
+        {
+            pdf.Negrita("Fecha          Cantidad      Monto total");
+            foreach (var d in Resultado.Dias)
+                pdf.Linea($"{d.Fecha}     {d.CantidadFacturas,8}      {d.MontoTotal,12:0.00}");
+            pdf.Negrita($"Total del rango: {Resultado.TotalRango:0.00}");
+
+            pdf.Linea("");
+            pdf.Titulo("Listado de facturas");
+            foreach (var f in Resultado.Facturas)
+            {
+                pdf.Linea($"{f.Fecha:dd/MM/yyyy}  Ref: {f.Referencia}  Emisor: {f.NitEmisor}  Receptor: {f.NitReceptor}");
+                pdf.Linea($"      Valor: {f.Valor:0.00}  IVA: {f.Iva:0.00}  Total: {f.Total:0.00}  Código: {f.CodigoAprobacion}");
+            }
+        }
+
+        return File(pdf.Generar(), "application/pdf", "ConsultaContribuyente.pdf");
+    }
+
+    private async Task Consultar()
     {
         if (string.IsNullOrWhiteSpace(Nit))
         {

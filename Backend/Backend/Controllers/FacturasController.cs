@@ -1,11 +1,12 @@
-﻿using Backend.Models;
+﻿using Backend.Estructuras;
+using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/facturas")]
 public class FacturasController : ControllerBase
 {
     private readonly FacturaService _facturas;
@@ -15,14 +16,14 @@ public class FacturasController : ControllerBase
         _facturas = facturas;
     }
 
-    // POST api/facturas -> recibe el JSON de solicitudes de autorización
+    // POST https://localhost:7214/api/facturas 
     [HttpPost]
-    public IActionResult Autorizar([FromBody] List<SolicitudFactura> solicitudes)
+    public IActionResult Autorizar([FromBody] ListaEnlazada<SolicitudFactura> solicitudes)
     {
         return Ok(_facturas.Autorizar(solicitudes));
     }
 
-    // GET api/facturas -> lista todas las facturas guardadas (para revisar)
+    // GET https://localhost:7214/api/facturas -> muestra todas las facturas guardadas
     [HttpGet]
     public IActionResult Listar()
     {

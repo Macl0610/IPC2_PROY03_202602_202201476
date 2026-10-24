@@ -1,13 +1,15 @@
-﻿namespace Backend.Models;
+﻿using Backend.Estructuras;
+
+namespace Backend.Models;
 
 // Resultado de la consulta de un contribuyente
 public class ConsultaContribuyente
 {
     public string Nit { get; set; } = "";
     public string Tipo { get; set; } = "";              // "emitidas" o "recibidas"
-    public List<ResumenDia> Dias { get; set; } = new();
+    public ListaEnlazada<ResumenDia> Dias { get; set; } = new();
     public decimal TotalRango { get; set; }             // total de todo el rango
-    public List<Factura> Facturas { get; set; } = new(); // el listado de facturas
+    public ListaEnlazada<Factura> Facturas { get; set; } = new(); // el listado de facturas
 }
 
 // Un renglón: lo que tuvo el contribuyente en UNA fecha

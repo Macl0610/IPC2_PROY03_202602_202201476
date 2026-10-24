@@ -1,4 +1,6 @@
-﻿namespace Backend.Models;
+﻿using Backend.Estructuras;
+
+namespace Backend.Models;
 
 public class Factura
 {
@@ -14,7 +16,7 @@ public class Factura
     public long? CodigoAprobacion { get; set; }
 
     // Errores encontrados al validar (vacía si está bien)
-    public List<string> Errores { get; set; } = new();
+    public ListaEnlazada<string> Errores { get; set; } = new();
 
-    public bool Aprobada => Errores.Count == 0;
+    public bool Aprobada => Errores.Cantidad == 0;
 }

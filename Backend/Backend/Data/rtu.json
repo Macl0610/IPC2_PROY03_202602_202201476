@@ -1,10 +1,26 @@
 [
   {
-    "NIT": "7378106",
-    "nombre": "Empresa ABC, S.A."
+    "NIT": "100008K",
+    "nombre": "Tienda La Esquina"
   },
   {
-    "NIT": "8338817",
-    "nombre": "Comercial XYZ, S.A."
+    "NIT": "2468131",
+    "nombre": "Panader\u00EDa Do\u00F1a Rosa"
+  },
+  {
+    "NIT": "4567897",
+    "nombre": "Ferreter\u00EDa La Llave"
+  },
+  {
+    "NIT": "7378106",
+    "nombre": "Empresa ABC Guatemala, S.A."
+  },
+  {
+    "NIT": "1234560",
+    "nombre": "Distribuidora El Sol"
+  },
+  {
+    "NIT": "9876545",
+    "nombre": "Comercial Los Altos"
   }
 ]
