@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using Backend.Estructuras;
 
 namespace Backend.Models;
 
@@ -20,7 +21,7 @@ public class ResultadoAutorizaciones
     public int RechazadasReceptorInexistente { get; set; }
 
     [JsonPropertyName("detalleAprobaciones")]
-    public List<DetalleAprobacion> DetalleAprobaciones { get; set; } = new();
+    public ListaEnlazada<DetalleAprobacion> DetalleAprobaciones { get; set; } = new();
 }
 
 public class DetalleAprobacion

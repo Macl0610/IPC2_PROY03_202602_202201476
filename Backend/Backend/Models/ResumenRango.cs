@@ -1,10 +1,12 @@
-﻿namespace Backend.Models;
+﻿using Backend.Estructuras;
+
+namespace Backend.Models;
 
 // Resumen de valores autorizados por fecha en un rango
 public class ResumenRango
 {
     public string Tipo { get; set; } = "";              // "total" o "sinIva"
-    public List<ValorDia> Dias { get; set; } = new();
+    public ListaEnlazada<ValorDia> Dias { get; set; } = new();
     public decimal TotalRango { get; set; }
 }
 
