@@ -1,5 +1,6 @@
 ﻿@page
 @model Frontend.Pages.ResumenIvaModel
+@using System.Globalization
 @{
     ViewData["Title"] = "Resumen IVA";
 }
@@ -15,6 +16,7 @@
         </div>
     </div>
     <button type="submit" class="btn btn-primary">Consultar</button>
+    <button type="submit" class="btn btn-outline-danger" formaction="?handler=Pdf">Descargar PDF</button>
 }
 
 @if (Model.Error != null)
@@ -40,5 +42,26 @@
                 }
             </tbody>
         </table>
+
+        <h4 class="mt-4">Gráfica</h4>
+        <p>
+            <span class="badge bg-primary">IVA emitido</span>
+            <span class="badge bg-success">IVA recibido</span>
+        </p>
+        @foreach (var n in Model.Resultado.Nits)
+        {
+            string anchoEmi = Model.Porcentaje(n.IvaEmitido).ToString("0.##", CultureInfo.InvariantCulture);
+            string anchoRec = Model.Porcentaje(n.IvaRecibido).ToString("0.##", CultureInfo.InvariantCulture);
+
+            <div class="mb-3">
+                <strong>NIT @n.Nit</strong>
+                <div class="progress mt-1" style="height: 24px;">
+                    <div class="progress-bar bg-primary" style="width: @anchoEmi%;">@n.IvaEmitido.ToString("0.00")</div>
+                </div>
+                <div class="progress mt-1" style="height: 24px;">
+                    <div class="progress-bar bg-success" style="width: @anchoRec%;">@n.IvaRecibido.ToString("0.00")</div>
+                </div>
+            </div>
+        }
     }
 }

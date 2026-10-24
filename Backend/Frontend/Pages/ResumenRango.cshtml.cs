@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Frontend.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -22,7 +23,45 @@ public class ResumenRangoModel : PageModel
 
     public void OnGet() { }
 
+    // Botón "Consultar"
     public async Task OnPostAsync()
+    {
+        await Consultar();
+    }
+
+    // Botón "Descargar PDF"
+    public async Task<IActionResult> OnPostPdfAsync()
+    {
+        await Consultar();
+        if (Resultado == null) return Page();
+
+        var pdf = new GeneradorPdf();
+        pdf.Titulo("Resumen por rango de fechas");
+        pdf.Linea($"Del {Desde:dd/MM/yyyy} al {Hasta:dd/MM/yyyy}");
+        pdf.Linea(Tipo == "sinIva" ? "Valores sin IVA" : "Valores totales (con IVA)");
+        pdf.Linea("");
+
+        if (Resultado.Dias.Count == 0)
+        {
+            pdf.Linea("No hay facturas autorizadas en ese rango.");
+        }
+        else
+        {
+            pdf.Negrita("Fecha            Valor");
+            foreach (var d in Resultado.Dias)
+                pdf.Linea($"{d.Fecha}       {d.Valor:0.00}");
+            pdf.Negrita($"Total del rango: {Resultado.TotalRango:0.00}");
+
+            pdf.Linea("");
+            pdf.Titulo("Gráfica");
+            foreach (var d in Resultado.Dias)
+                pdf.Barra(d.Fecha, Porcentaje(d.Valor), d.Valor.ToString("0.00"));
+        }
+
+        return File(pdf.Generar(), "application/pdf", "ResumenRango.pdf");
+    }
+
+    private async Task Consultar()
     {
         if (Desde > Hasta)
         {
@@ -42,6 +81,21 @@ public class ResumenRangoModel : PageModel
         {
             Error = "No se pudo conectar con el Backend. ¿Está corriendo?";
         }
+    }
+
+    // Para la gráfica: el día con más valor es el 100% del ancho
+    public double Porcentaje(decimal valor)
+    {
+        if (Resultado == null) return 0;
+
+        decimal maximo = 0;
+        foreach (var d in Resultado.Dias)
+        {
+            if (d.Valor > maximo) maximo = d.Valor;
+        }
+
+        if (maximo == 0) return 0;
+        return (double)(valor / maximo * 100);
     }
 }
 

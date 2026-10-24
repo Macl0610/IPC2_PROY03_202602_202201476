@@ -1,0 +1,37 @@
+﻿@page
+@model Frontend.Pages.AyudaModel
+@{
+    ViewData["Title"] = "Ayuda";
+    string claseEst = Model.Opcion == "documentacion" ? "btn-outline-primary" : "btn-primary";
+    string claseDoc = Model.Opcion == "documentacion" ? "btn-primary" : "btn-outline-primary";
+}
+
+<h2>Ayuda</h2>
+
+<div class="mb-4">
+    <a class="btn @claseEst" asp-page="/Ayuda" asp-route-opcion="estudiante">Información del estudiante</a>
+    <a class="btn @claseDoc" asp-page="/Ayuda" asp-route-opcion="documentacion">Documentación</a>
+</div>
+
+@if (Model.Opcion == "documentacion")
+{
+    <h4>Documentación del programa</h4>
+    <p>
+        <a class="btn btn-primary" href="/Documentos/Ensayo_Proyecto3_202201476.pdf" target="_blank">Abrir PDF</a>
+        <a class="btn btn-outline-primary" href="/Documentos/Ensayo_Proyecto3_202201476.pdf" download>Descargar PDF</a>
+    </p>
+}
+else
+{
+    <h4>Información del estudiante</h4>
+    <table class="table table-bordered" style="max-width: 600px">
+        <tbody>
+            <tr><th>Nombre</th><td>María Andrea Charuc López</td></tr>
+            <tr><th>Carné</th><td>202201476</td></tr>
+            <tr><th>Curso</th><td>Introducción a la Programación y Computación 2</td></tr>
+            <tr><th>Sección</th><td>C</td></tr>
+            <tr><th>Auxiliar</th><td>Daniel Velasquez</td></tr>
+            <tr><th>Semestre</th><td>Segundo semestre 2026</td></tr>
+        </tbody>
+    </table>
+}

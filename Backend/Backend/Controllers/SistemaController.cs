@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Backend.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/sistema")]
 public class SistemaController : ControllerBase
 {
     private readonly RtuService _rtu;
@@ -16,7 +16,7 @@ public class SistemaController : ControllerBase
         _facturas = facturas;
     }
 
-    // POST api/sistema/inicializar -> borra todos los datos
+    // POST https://localhost:7214/api/sistema/inicializar -> borra todos los datos (Body: none)
     [HttpPost("inicializar")]
     public IActionResult Inicializar()
     {

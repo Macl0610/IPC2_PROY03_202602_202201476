@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Backend.Estructuras;
 using Backend.Models;
 using Backend.Utils;
 
@@ -20,7 +21,8 @@ public class FacturaService
 
     private readonly string _carpeta = "Data";
     private readonly string _ruta = Path.Combine("Data", "facturas.json");
-    private readonly List<Factura> _facturas;
+    // TDA propio: lista enlazada con todas las facturas recibidas
+    private readonly ListaEnlazada<Factura> _facturas;
     private readonly RtuService _rtu;
     private readonly object _lock = new();
 
@@ -30,7 +32,7 @@ public class FacturaService
         _facturas = Cargar();
     }
 
-    public RespuestaAutorizacion Autorizar(List<SolicitudFactura> solicitudes)
+    public RespuestaAutorizacion Autorizar(ListaEnlazada<SolicitudFactura> solicitudes)
     {
         var respuesta = new RespuestaAutorizacion();
         var resultado = respuesta.ResultadoAutorizaciones;
@@ -45,7 +47,7 @@ public class FacturaService
                 {
                     factura.CodigoAprobacion = SiguienteCodigo(DateTime.Now);
                     resultado.Aprobadas++;
-                    resultado.DetalleAprobaciones.Add(new DetalleAprobacion
+                    resultado.DetalleAprobaciones.Agregar(new DetalleAprobacion
                     {
                         Referencia = factura.Referencia,
                         CodigoAprobacion = factura.CodigoAprobacion.Value
@@ -53,13 +55,13 @@ public class FacturaService
                 }
                 else
                 {
-                    if (factura.Errores.Contains(NitEmisorInexistente))
+                    if (factura.Errores.Contiene(NitEmisorInexistente))
                         resultado.RechazadasEmisorInexistente++;
-                    if (factura.Errores.Contains(NitReceptorInexistente))
+                    if (factura.Errores.Contiene(NitReceptorInexistente))
                         resultado.RechazadasReceptorInexistente++;
                 }
 
-                _facturas.Add(factura);
+                _facturas.Agregar(factura);
             }
 
             Guardar();
@@ -84,7 +86,7 @@ public class FacturaService
         DateTime? fecha = ExtractorFecha.Extraer(s.Tiempo);
         if (fecha == null)
         {
-            f.Errores.Add(FechaInvalida);
+            f.Errores.Agregar(FechaInvalida);
             f.Fecha = DateTime.Now;
         }
         else
@@ -94,41 +96,43 @@ public class FacturaService
 
         // Referencia: obligatoria, máximo 40, única
         if (f.Referencia.Length == 0 || f.Referencia.Length > 40)
-            f.Errores.Add(ReferenciaInvalida);
-        else if (ExisteReferenciaAprobada(f.Referencia))
-            f.Errores.Add(ReferenciaDuplicada);
+            f.Errores.Agregar(ReferenciaInvalida);
+        else if (ExisteReferencia(f.Referencia))
+            f.Errores.Agregar(ReferenciaDuplicada);
 
         // NIT emisor
         if (!ValidadorNit.EsValido(f.NitEmisor))
-            f.Errores.Add(NitEmisorInvalido);
+            f.Errores.Agregar(NitEmisorInvalido);
         else if (!_rtu.Existe(f.NitEmisor))
-            f.Errores.Add(NitEmisorInexistente);
+            f.Errores.Agregar(NitEmisorInexistente);
 
         // NIT receptor
         if (!ValidadorNit.EsValido(f.NitReceptor))
-            f.Errores.Add(NitReceptorInvalido);
+            f.Errores.Agregar(NitReceptorInvalido);
         else if (!_rtu.Existe(f.NitReceptor))
-            f.Errores.Add(NitReceptorInexistente);
+            f.Errores.Agregar(NitReceptorInexistente);
 
-        // Montos
-        if (f.Valor <= 0)
-            f.Errores.Add(ValorInvalido);
+        // VALOR: positivo y con máximo 2 decimales
+        // (si al redondearlo a 2 decimales cambia, es que traía más)
+        if (f.Valor <= 0 || f.Valor != Math.Round(f.Valor, 2))
+            f.Errores.Agregar(ValorInvalido);
 
         decimal ivaCorrecto = Math.Round(f.Valor * 0.12m, 2, MidpointRounding.AwayFromZero);
         if (f.Iva != ivaCorrecto)
-            f.Errores.Add(IvaMalCalculado);
+            f.Errores.Agregar(IvaMalCalculado);
 
-        if (f.Total != f.Valor + ivaCorrecto)
-            f.Errores.Add(TotalMalCalculado);
+        if (f.Total != f.Valor + f.Iva)
+            f.Errores.Agregar(TotalMalCalculado);
 
         return f;
     }
 
-    private bool ExisteReferenciaAprobada(string referencia)
+    // La referencia debe ser única entre TODAS las facturas recibidas
+    private bool ExisteReferencia(string referencia)
     {
         foreach (var f in _facturas)
         {
-            if (f.Aprobada && f.Referencia == referencia) return true;
+            if (f.Referencia == referencia) return true;
         }
         return false;
     }
@@ -151,11 +155,11 @@ public class FacturaService
         return prefijo * 100000000 + (ultimoCorrelativo + 1);
     }
 
-    public List<Factura> ObtenerTodas()
+    public ListaEnlazada<Factura> ObtenerTodas()
     {
         lock (_lock)
         {
-            return _facturas.ToList();
+            return _facturas.Copiar();
         }
     }
 
@@ -163,16 +167,17 @@ public class FacturaService
     {
         lock (_lock)
         {
-            _facturas.Clear();
+            _facturas.Limpiar();
             Guardar();
         }
     }
 
-    private List<Factura> Cargar()
+    private ListaEnlazada<Factura> Cargar()
     {
-        if (!File.Exists(_ruta)) return new List<Factura>();
+        if (!File.Exists(_ruta)) return new ListaEnlazada<Factura>();
+
         string json = File.ReadAllText(_ruta);
-        return JsonSerializer.Deserialize<List<Factura>>(json) ?? new List<Factura>();
+        return JsonSerializer.Deserialize<ListaEnlazada<Factura>>(json) ?? new ListaEnlazada<Factura>();
     }
 
     private void Guardar()

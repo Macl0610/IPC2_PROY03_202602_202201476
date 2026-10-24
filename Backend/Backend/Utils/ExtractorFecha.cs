@@ -4,9 +4,10 @@ namespace Backend.Utils;
 
 public static class ExtractorFecha
 {
-    // dd/mm/yyyy y, opcionalmente, hh:mi (en cualquier parte del texto)
+    // Exige dd/mm/yyyy hh:mi (hora obligatoria, 2 dígitos en día, mes, hora y minutos).
+    // (?<!\d) y (?!\d) evitan tomar un pedazo de un número más largo, como 123/01/2025.
     private static readonly Regex Patron =
-        new(@"(\d{1,2})/(\d{1,2})/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?");
+        new(@"(?<!\d)(\d{2})/(\d{2})/(\d{4})\s+(\d{2}):(\d{2})(?!\d)");
 
     public static DateTime? Extraer(string? texto)
     {
@@ -18,8 +19,8 @@ public static class ExtractorFecha
         int dia = int.Parse(m.Groups[1].Value);
         int mes = int.Parse(m.Groups[2].Value);
         int anio = int.Parse(m.Groups[3].Value);
-        int hora = m.Groups[4].Success ? int.Parse(m.Groups[4].Value) : 0;
-        int minuto = m.Groups[5].Success ? int.Parse(m.Groups[5].Value) : 0;
+        int hora = int.Parse(m.Groups[4].Value);
+        int minuto = int.Parse(m.Groups[5].Value);
 
         // Hora en formato 24h: 0 a 23
         if (hora > 23 || minuto > 59) return null;
